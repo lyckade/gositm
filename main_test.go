@@ -50,6 +50,10 @@ func TestIgnorePath(t *testing.T) {
 			true,
 		},
 		{
+			"/myfolder/test/1234",
+			true,
+		},
+		{
 			"myFile",
 			false,
 		},

@@ -12,7 +12,7 @@ type Conf struct {
 var Default = Conf{
 	Recursive:    true,
 	BackupFolder: "000_Backup",
-	Ignore:       []string{".git", "000_Backup"},
+	Ignore:       []string{"000_Backup", "^.git/"},
 }
 
 //Properties are the configuration parameter for the other modules

@@ -31,6 +31,12 @@ func main() {
 		if info.IsDir() {
 			return err
 		}
+		ignore, err := MatchPath(fpath, properties.Ignore)
+		if err != nil || ignore {
+			fmt.Println(fpath)
+			return err
+		}
+
 		targetPath, err := MakeBackupDir(
 			MakeBackupFilename(fpath, info.ModTime()),
 			rootDir,
