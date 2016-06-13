@@ -19,10 +19,8 @@ var properties = conf.Properties
 var rootDir string
 
 func init() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
+	dir := filepath.Dir(os.Args[0])
+
 	rootDir = dir
 }
 
@@ -44,6 +42,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Printf("In: %v\nOut:%v\n\n", fpath, targetPath)
 		err = CopyFile(fpath, targetPath)
 		if err != nil {
 			log.Fatal(err)
@@ -65,8 +64,14 @@ func MakeBackupDir(fpath, rootDir, backupFolder string) (string, error) {
 // It is also possible to use a filepath as filename
 func MakeBackupFilename(filename string, lastChange time.Time) string {
 	ext := path.Ext(filename)
+	filebase := filename[:len(filename)-len(ext)]
+	if len(ext) == len(filename) {
+		ext = ""
+		filebase = filename
+	}
+
 	ts := timestamp.FromTime(lastChange)
-	return fmt.Sprintf("%s.%s%s", filename[:len(filename)-len(ext)], ts, ext)
+	return fmt.Sprintf("%s.%s%s", filebase, ts, ext)
 }
 
 // MatchPath checks if a filepath matches a [] of patterns
@@ -90,16 +95,26 @@ func CopyFile(src, dest string) error {
 		return err
 	}
 	fdest, err := os.Create(dest)
-	if err != nil {
-		return err
-	}
 	defer fdest.Close()
-	fsrc, err := os.Open(src)
 	if err != nil {
 		return err
 	}
+
+	fsrc, err := os.Open(src)
 	defer fsrc.Close()
-	_, err = io.Copy(fsrc, fdest)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(fdest, fsrc)
+	if err != nil {
+		return err
+	}
+	srcInfo, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+	err = os.Chtimes(dest, srcInfo.ModTime(), srcInfo.ModTime())
 	if err != nil {
 		return err
 	}
