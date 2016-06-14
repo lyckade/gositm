@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +15,11 @@ import (
 	"github.com/lyckade/gositm/timestamp"
 )
 
+// Version defines the version number of the app
+const Version = "0.7.1"
+
+var versOut = flag.Bool("version", false, "The version of this app.")
+
 var properties = conf.Properties
 
 var rootDir string
@@ -22,9 +28,14 @@ func init() {
 	dir := filepath.Dir(os.Args[0])
 
 	rootDir = dir
+	flag.Parse()
 }
 
 func main() {
+	if *versOut {
+		fmt.Printf("Version: %s", Version)
+		os.Exit(-1)
+	}
 	filepath.Walk(rootDir, func(fpath string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return err
